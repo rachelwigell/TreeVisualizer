@@ -12,20 +12,15 @@ import peasy.org.apache.commons.math.geometry.*;
   
   public void setup(){
     size(800, 600, P3D);
-//    camera(400, 300, 700, 400, 300, 350, 0, -1, 0);
     camera = new PeasyCam(this, 0, 0, 0, 200);
-//    poly = new Polygon(9);
-    this.root = new Branch(new Line(new Vector3D(0, 50, 0), new Vector3D(0, -50, 0)), 8, 3);
-//    this.root.printInfo();
-//    println(random(1,4));
-//    println(random(4,1));
-//    println(random(-3));
+    this.root = new Branch(8, 3);
   }
   
   public void draw(){
     background(0);
+    lights();
 //    poly.drawPolygon(this);
-    stroke(255);
+    stroke(0, 200, 90);
     strokeWeight(4);
     root.drawBranch(this);
   }
