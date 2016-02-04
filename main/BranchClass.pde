@@ -29,6 +29,7 @@ public class Branch {
     Vector3D branchStart;
     float yNorm;
     float branchLength;
+    // put the last branch at the top, it looks less awkward.
     if(!last){
       float branchYRand = random(0, .5+.1*this.level);
       float branchY = root.path.end.y - branchYRand*(root.path.end.y-root.path.start.y);
@@ -37,11 +38,11 @@ public class Branch {
       yNorm = .1;
       float up = random(-.8, .1);
       if(up < 0){
-        yNorm = random(-.4, -.2); 
+        yNorm = random(-.5, -.2); 
       }
     }
     else{
-      yNorm = -.5;
+      yNorm = -.9;
       branchStart = new Vector3D(root.path.end.x, root.path.end.y+1, root.path.end.z);
       branchLength = random(.4, .6)*root.path.length/(this.level);
     }
