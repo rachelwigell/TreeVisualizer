@@ -2,9 +2,9 @@
 public class Line {
   Vector3D start;
   Vector3D end;
-  float length;
   Polygon startFace;
   Polygon endFace;
+  float length;
   
   public Line(Vector3D start, Vector3D end){
     this.start = start;
@@ -20,43 +20,81 @@ public class Line {
     this.endFace = endFace;
   }
   
-  public void drawLine(PApplet visual){
-    visual.line(start.x, start.y,  start.z, end.x, end.y, end.z);
+  public void drawSolid(){
+    fill(255);
+    noStroke();
+    float xDiff = (this.end.x-this.start.x);
+    float yDiff = (this.end.y-this.start.y);
+    float zDiff = (this.end.z-this.start.z);
+    float yAngle = asin(yDiff/this.length);
+    float xzAngle = -atan(zDiff/xDiff);
+    if(xDiff < 0) yAngle *= -1;
+    pushMatrix();
+      translate(this.start.x,
+           this.start.y,
+           this.start.z);
+      rotateY(xzAngle);
+      rotateZ(yAngle);
+      this.startFace.drawPolygon();
+      Vector3D[] startVertices = new Vector3D[startFace.sides];
+      for(int i = 0; i < startFace.sides; i++){
+        Vector3D vertex = startFace.vertices[i];
+        startVertices[i] = new Vector3D(modelX(vertex.x, vertex.y, vertex.z), modelY(vertex.x, vertex.y, vertex.z), modelZ(vertex.x, vertex.y, vertex.z));
+      }
+    popMatrix();
+    pushMatrix();
+      translate(this.end.x,
+           this.end.y,
+           this.end.z);
+      rotateY(xzAngle);
+      rotateZ(yAngle);
+      this.endFace.drawPolygon();
+      Vector3D[] endVertices = new Vector3D[endFace.sides];
+      for(int i = 0; i < endFace.sides; i++){
+        Vector3D vertex = endFace.vertices[i];
+        endVertices[i] = new Vector3D(modelX(vertex.x, vertex.y, vertex.z), modelY(vertex.x, vertex.y, vertex.z), modelZ(vertex.x, vertex.y, vertex.z));
+      }
+    popMatrix();
+    for(int i = 0; i < startFace.sides-1; i++){
+      beginShape();
+      vertex(startVertices[i].x, startVertices[i].y, startVertices[i].z);
+      vertex(startVertices[i+1].x, startVertices[i+1].y, startVertices[i+1].z);
+      vertex(endVertices[i+1].x, endVertices[i+1].y, endVertices[i+1].z);
+      vertex(endVertices[i].x, endVertices[i].y, endVertices[i].z);
+      endShape(CLOSE);
+    }
+    beginShape();
+    vertex(startVertices[startFace.sides-1].x, startVertices[startFace.sides-1].y, startVertices[startFace.sides-1].z);
+    vertex(startVertices[0].x, startVertices[0].y, startVertices[0].z);
+    vertex(endVertices[0].x, endVertices[0].y, endVertices[0].z);
+    vertex(endVertices[endFace.sides-1].x, endVertices[endFace.sides-1].y, endVertices[endFace.sides-1].z);
+    endShape(CLOSE); 
   }
   
-  public void drawSolid(PApplet visual){
-    startFace.drawPolygon(visual);
-    endFace.drawPolygon(visual);
-    int numVert = startFace.vertices.size();
-    visual.pushMatrix();
-    visual.translate(startFace.position.x, startFace.position.y, startFace.position.z);
-    visual.rotateX(startFace.orientation.x);
-    visual.rotateY(startFace.orientation.y);
-    visual.rotateZ(startFace.orientation.z);
-    visual.scale(startFace.scale.x, startFace.scale.y, startFace.scale.z);
-    for(int i = 0; i < numVert-1; i++){
-      visual.beginShape();
-      visual.vertex(startFace.vertices.get(i).x, startFace.vertices.get(i).y, startFace.vertices.get(i).z);
-      visual.vertex(startFace.vertices.get(i+1).x, startFace.vertices.get(i+1).y, startFace.vertices.get(i+1).z);
-      visual.vertex((endFace.position.x-startFace.position.x)+endFace.vertices.get(i+1).x,
-                    (endFace.position.y-startFace.position.y)+endFace.vertices.get(i+1).y,
-                    (endFace.position.z-startFace.position.z)+endFace.vertices.get(i+1).z);
-      visual.vertex((endFace.position.x-startFace.position.x)+endFace.vertices.get(i).x,
-                    (endFace.position.y-startFace.position.y)+endFace.vertices.get(i).y,
-                    (endFace.position.z-startFace.position.z)+endFace.vertices.get(i).z);
-      visual.endShape(CLOSE);
-    }
-    visual.beginShape();
-    visual.vertex(startFace.vertices.get(numVert-1).x, startFace.vertices.get(numVert-1).y, startFace.vertices.get(numVert-1).z);
-    visual.vertex(startFace.vertices.get(0).x, startFace.vertices.get(0).y, startFace.vertices.get(0).z);
-    visual.vertex((endFace.position.x-startFace.position.x)+endFace.vertices.get(0).x,
-                  (endFace.position.y-startFace.position.y)+endFace.vertices.get(0).y,
-                  (endFace.position.z-startFace.position.z)+endFace.vertices.get(0).z);
-    visual.vertex((endFace.position.x-startFace.position.x)+endFace.vertices.get(numVert-1).x,
-                  (endFace.position.y-startFace.position.y)+endFace.vertices.get(numVert-1).y,
-                  (endFace.position.z-startFace.position.z)+endFace.vertices.get(numVert-1).z);
-    visual.endShape(CLOSE); 
-   visual.popMatrix(); 
+  public void drawLine(){
+    noFill();
+    stroke(255);
+    line(start.x, start.y,  start.z, end.x, end.y, end.z);
+  }
+  
+  public void drawBox(){
+    fill(255);
+    noStroke();
+    pushMatrix();
+    float xDiff = (this.end.x-this.start.x);
+    float yDiff = (this.end.y-this.start.y);
+    float zDiff = (this.end.z-this.start.z);
+    translate(this.start.x+(xDiff)/2,
+             this.start.y+(yDiff)/2,
+             this.start.z+(zDiff)/2);
+    float xzAngle = -atan(zDiff/xDiff);
+    rotateY(xzAngle);
+    float yAngle = asin(yDiff/this.length);
+    if(xDiff < 0) yAngle *= -1;
+    rotateZ(yAngle);
+    scale(1, .01+1/this.length, .01+1/this.length);
+    box(this.length);
+    popMatrix();
   }
   
   public Vector3D getPointWithThisY(float y){
@@ -66,4 +104,3 @@ public class Line {
     return new Vector3D(x, y, z);
   }
 }
-

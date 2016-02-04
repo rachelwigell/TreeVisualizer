@@ -5,77 +5,72 @@ public class Branch {
   Branch[] branches;
   int level;
   int endLevel;
-  int faces;
   
-  public Branch(Line path, int numBranches, int endLevel, int faces){
-    this.path = path;
+  public Branch(Vector3D position, int numBranches, int endLevel){
+    float yDist = random(100, 130);
+    float xAngle = random(-20, 20);
+    float zAngle = random(-20, 20);
+    Vector3D endPos = new Vector3D(position.x+xAngle, position.y-yDist, position.z+zAngle);
+    this.path = new Line(position, endPos,  new Polygon(5, yDist/20.0), new Polygon(5, yDist/70.0));
     this.numBranches = numBranches;
     this.endLevel = endLevel;
     this.level = 1;
-    this.faces = faces;
     this.branches = new Branch[numBranches];
-    for(int i = 0; i < numBranches; i++){
-      branches[i] = new Branch(this);
+    for(int i = 0; i < numBranches-1; i++){
+      branches[i] = new Branch(this, false);
     }
+    branches[numBranches-1] = new Branch(this, true);
   }
   
-  public Branch(Branch root){
+  public Branch(Branch root, boolean last){
     this.level = root.level+1;
-    this.numBranches = root.numBranches;
+    this.numBranches = root.numBranches-1;
     this.endLevel = root.endLevel;
-    this.faces = root.faces;
-    float branchY = root.path.end.y - 2*random((root.path.end.y-(root.path.start.y)))/3;
-    Vector3D branchStart = root.path.getPointWithThisY(branchY);
-    float branchLength = .7*root.path.length-.4*root.path.start.distance(branchStart)+random(-.1*root.path.length, .1*root.path.length);
-    float yNorm = random(-.8, .3);
-    float xNorm = random(yNorm*yNorm-1, yNorm*yNorm+1);
-    float pos = random(-1, 1);
-    float zNorm;
-    if(pos > 0) zNorm = 1 - xNorm*xNorm - yNorm*yNorm;
-    else zNorm = xNorm*xNorm + yNorm*yNorm - 1;
+    Vector3D branchStart;
+    float yNorm;
+    float branchLength;
+    if(!last){
+      float branchYRand = random(0, .5+.1*this.level);
+      float branchY = root.path.end.y - branchYRand*(root.path.end.y-root.path.start.y);
+      branchStart = root.path.getPointWithThisY(branchY);
+      branchLength = (.5+branchYRand)*random(1, 1.3)*root.path.length/(this.level);
+      yNorm = .1;
+      float up = random(-.8, .1);
+      if(up < 0){
+        yNorm = random(-.4, -.2); 
+      }
+    }
+    else{
+      yNorm = -.5;
+      branchStart = new Vector3D(root.path.end.x, root.path.end.y+1, root.path.end.z);
+      branchLength = random(.4, .6)*root.path.length/(this.level);
+    }
+    float xNorm = random(-1, 1);
+    float zNorm = random(-1, 1);
     Vector3D branchEnd = branchStart.addVector(new Vector3D(xNorm, yNorm, zNorm).multiplyScalar(branchLength));
-    float percent = (branchY-root.path.start.y)/(root.path.end.y-root.path.start.y);
-    float baseRad = random(percent*root.path.startFace.radius);
-    float topRad = random(baseRad);
-    this.path = new Line(branchStart, branchEnd, new Polygon(this.faces, branchStart, baseRad), new Polygon(this.faces, branchEnd, baseRad));
+    this.path = new Line(branchStart, branchEnd, new Polygon(5, branchLength/20.0), new Polygon(5, branchLength/70.0));
     if(this.level < this.endLevel){
       this.branches = new Branch[numBranches];
       for(int i = 0; i < numBranches; i++){
-        branches[i] = new Branch(this);
+        branches[i] = new Branch(this, false);
       }
     }
   }
   
-  public void drawBranch(PApplet visual, boolean solid){
-    if(solid){
-      noStroke();
-      fill(255);
-      this.path.drawSolid(visual);
+  public void drawBranch(String style){
+    if(style == "boxes"){
+      this.path.drawBox();
     }
-    else{
-      noFill();
-      stroke(255);
-      this.path.drawLine(visual);
+    else if(style == "lines"){
+      this.path.drawLine();
+    }
+    else if(style == "solid"){
+      this.path.drawSolid();
     }
     if(this.level < this.endLevel){
       for(Branch b: this.branches){
-        b.drawBranch(visual, solid);
+        b.drawBranch(style);
       }
-    }
-  }
-  
-  public void printInfo(){
-    println("Branch level: " + this.level);
-    println("num branches: " + this.numBranches + " endLevel: " + this.endLevel);
-    if(this.level < this.endLevel){
-      println("starting children:");
-      for(Branch b: this.branches){
-        b.printInfo();
-      }
-    }
-    else{
-      println("this is a leaf node");
     }
   }
 }
-
