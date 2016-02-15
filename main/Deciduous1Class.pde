@@ -1,12 +1,12 @@
-public class Branch {
-  Branch root;
+public class Deciduous1 {
+  Deciduous1 root;
   Line path;
   int numBranches;
-  Branch[] branches;
+  Deciduous1[] branches;
   int level;
   int endLevel;
   
-  public Branch(Vector3D position, int numBranches, int endLevel){
+  public Deciduous1(Vector3D position, int numBranches, int endLevel){
     float yDist = random(100, 130);
     float xAngle = random(-20, 20);
     float zAngle = random(-20, 20);
@@ -15,14 +15,14 @@ public class Branch {
     this.numBranches = numBranches;
     this.endLevel = endLevel;
     this.level = 1;
-    this.branches = new Branch[numBranches];
+    this.branches = new Deciduous1[numBranches];
     for(int i = 0; i < numBranches-1; i++){
-      branches[i] = new Branch(this, false);
+      branches[i] = new Deciduous1(this, false);
     }
-    branches[numBranches-1] = new Branch(this, true);
+    branches[numBranches-1] = new Deciduous1(this, true);
   }
   
-  public Branch(Branch root, boolean last){
+  public Deciduous1(Deciduous1 root, boolean last){
     this.level = root.level+1;
     this.numBranches = root.numBranches-1;
     this.endLevel = root.endLevel;
@@ -51,9 +51,9 @@ public class Branch {
     Vector3D branchEnd = branchStart.addVector(new Vector3D(xNorm, yNorm, zNorm).multiplyScalar(branchLength));
     this.path = new Line(branchStart, branchEnd, new Polygon(5, branchLength/20.0), new Polygon(5, branchLength/70.0));
     if(this.level < this.endLevel){
-      this.branches = new Branch[numBranches];
+      this.branches = new Deciduous1[numBranches];
       for(int i = 0; i < numBranches; i++){
-        branches[i] = new Branch(this, false);
+        branches[i] = new Deciduous1(this, false);
       }
     }
   }
@@ -69,7 +69,7 @@ public class Branch {
       this.path.drawSolid();
     }
     if(this.level < this.endLevel){
-      for(Branch b: this.branches){
+      for(Deciduous1 b: this.branches){
         b.drawBranch(style);
       }
     }

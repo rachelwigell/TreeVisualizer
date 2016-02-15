@@ -15,6 +15,12 @@ public class Vector3D {
     this.z = (float) z;
   }
   
+  public Vector3D(Vector3D vec){
+    this.x = vec.x;
+    this.y = vec.y;
+    this.z = vec.z;
+  }
+  
   public float distance(Vector3D to){
     return (float) Math.sqrt(squareDistance(to));
   }
